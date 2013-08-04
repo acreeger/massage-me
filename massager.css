@@ -1,1 +1,17 @@
 /* CSS declarations go here */
+#massageTable {
+  margin-top:10px;
+  width: 670px;
+}
+
+.days-container {
+  padding: 20px;
+}
+
+.add-day {
+  margin-bottom: 10px;
+}
+
+body {
+  margin-left: 10px;
+}

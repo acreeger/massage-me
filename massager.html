@@ -1,0 +1,52 @@
+<head>
+  <title>Book your massage slot</title>
+</head>
+
+<body>
+  <!-- TODO: Make admin only -->
+  {{> allSessions}}
+  <br>
+  {{> massageTable}}
+</body>
+
+<template name="allSessions">
+  <div class="days-container">
+    <input type="text" id="new-day-date">
+    <button class="add-day'">Add new day</button>
+  </div>
+</template>
+
+
+<template name="massageTable">
+  Date: {{date}}
+
+  <table>
+    <thead>
+      <th>Time Slot</th>
+      <th>Masseuse #1</th>
+      <th>Masseuse #2</th>
+    </thead>
+    {{#each slots}}
+    <tr>
+      <td>{{time}}</td>
+      <td>
+        {{customer1}}
+        {{#if masseuse1.customerName}}
+          {{masseuse1.customerName}}
+        {{else}}
+          <!-- TODO: This should be one field, a timestamp? ObjectID  -->
+          <input class="time-slot-input" data-timeslot="{{time}}" data-date="{{date}}" data-masseuse="1" type="text" placeholder="Available slot"><button class="book-time-slot">Book</button>
+        {{/if}}
+      </td>
+      <td>
+        {{customer2}}
+        {{#if masseuse2.customerName}}
+          {{masseuse2.customerName}}
+        {{else}}
+          <input class="time-slot-input" data-timeslot="{{time}}" data-date="{{date}}"  data-masseuse="2" type="text" placeholder="Available slot"><button class="book-time-slot">Book</button>
+        {{/if}}
+      </td>
+    </tr>
+    {{/each}}
+  </table>
+</template>

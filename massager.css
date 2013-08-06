@@ -4,12 +4,36 @@
   width: 670px;
 }
 
-.days-container {
+.admin-container {
+  margin: 20px;
   padding: 20px;
+  border:1px solid red;
+  border-radius: 10px;
 }
 
-.add-day {
+#day-select {
+  width: 105px;
+  margin-bottom: 0;
+}
+
+.admin-container h5 {
+  margin-top: 0
+}
+
+.remove-booking {
+  color: red;
+}
+
+/*.add-day, .book-time-slot {
   margin-bottom: 10px;
+}
+*/
+input[type="text"], input[type="password"], .ui-autocomplete-input, textarea, .uneditable-input {
+  height: 14px;
+}
+
+input[type="text"] {
+  margin-bottom: 0;
 }
 
 body {

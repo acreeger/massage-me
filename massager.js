@@ -11,8 +11,10 @@ if (Meteor.isClient) {
 
     var latestActiveDay = Days.findOne({active:true}, {sort:{dayTimestamp : -1}})
     if (latestActiveDay) {
-      console.log("Found an active day (%s). Setting currentDayId in session", moment(latestActiveDay.dayTimestamp).format("MM/DD/YYYY"));
+      console.log("Client init: Found an active day (%s). Setting currentDayId in session", moment(latestActiveDay.dayTimestamp).format("MM/DD/YYYY"));
       Session.set("currentDayId", latestActiveDay._id)
+    } else {
+      console.log("Client init: Did not find an active day.")
     }
   });
 
@@ -23,6 +25,7 @@ if (Meteor.isClient) {
   //       console.log("You pressed the button");
   //   }
   // });
+
 
   Template.massageTable.date = function() {
     //TODO: Fix
@@ -35,24 +38,76 @@ if (Meteor.isClient) {
     }
   }
 
-  Template.massageTable.events({
-    'click .book-time-slot' : function(evt) {
-      console.log("this",this)
-      console.log("evt",evt);
+  //TODO: Implement this when we can change the masseuse name here
+  Template.massageTable.masseuseName = function(masseuseNumber) {
+    return "";
+  }
+
+  Template.massageTable.slots = function() {
+    var dayId = Session.get("currentDayId");
+
+    return TimeSlots.find({dayId:dayId}, {sort: {slotTimestamp:1}})   
+  }
+
+  Template.massageTable.currentDayIsActive = function() {
+    var dayId = Session.get("currentDayId");
+    if (dayId) return Days.findOne(dayId).active;    
+    else return true;
+  }
+
+  function toggleAvailability(evt, slot, isAvailable) {
+      evt.preventDefault();
       var $tgt = $(evt.target);
-      var slotId = $tgt.attr("data-slotId");
       var masseuse = $tgt.attr("data-masseuse");
 
-      var inputSelector = "#" + [masseuse,'input',slotId].join("-");
-      console.log("inputSelector:",inputSelector)
-      console.log("$(inputSelector):",$(inputSelector))
+      var field = "masseuse" + masseuse + ".available"
+      var update = {};
+      update[field] = isAvailable;
+      TimeSlots.update(slot._id, { $set: update});
+  }
+
+  function updateCustomerName(slot, masseuse, name) {
+    var field = "masseuse" + masseuse + ".customerName";
+    var update = {};
+    update[field] = name;
+    TimeSlots.update(slot._id, { $set: update});
+  }
+
+  Template.massageTable.events({
+    'click .book-time-slot' : function(evt) {
+      var $tgt = $(evt.target);
+      var masseuse = $tgt.attr("data-masseuse");
+
+      var inputSelector = "#" + [masseuse,'input',this._id].join("-");
       var name = $(inputSelector).val();
 
       if (name !== "") {
-        var field = "masseuse" + masseuse //+ ".customerName"        
-        var update = {};
-        update[field] = {customerName: name};
-        TimeSlots.update(this._id, { $set: update});
+        updateCustomerName(this, masseuse, name);
+      }
+    },
+    'click .make-unavailable' : function(evt) {
+      toggleAvailability(evt, this, false)
+    },
+    'click .make-available' : function(evt) {
+      toggleAvailability(evt, this, true)
+    },
+    'click .remove-booking' : function(evt) {      
+      evt.preventDefault();
+      if (confirm("Are you sure you wish to remove this booking?")) {
+        var $tgt = $(evt.target);
+        var masseuse = $tgt.attr("data-masseuse");
+
+        updateCustomerName(this, masseuse, "");
+      }
+    },
+    'click .toggle-active' : function(evt) {
+      if (confirm("Are you sure? You won't be able hide this page once it is public.")) {
+        var dayId = Session.get("currentDayId");
+        //TODO: Change this to use Mongo toggle $toggle (or whatever it is) - this will stop the need for the findOne then update
+        var day = Days.findOne(dayId);
+        
+        var newVal = !day.active;
+        Days.update(dayId, {$set : {active: newVal}})        
       }
     }
   });
@@ -66,7 +121,6 @@ if (Meteor.isClient) {
       var newTimestamp = baseDate.valueOf() + i * INCREMENT
       var slotMoment = moment(newTimestamp);
       var time = slotMoment.format("hh:mmA");
-      console.log(time);
 
       var newSlot = {
         "ordinal" : i
@@ -83,13 +137,28 @@ if (Meteor.isClient) {
           }
       }
 
-      console.log("writing slot %s to DB", i);
       TimeSlots.insert(newSlot);
-      // console.log(time);
     }
   }
 
+  Template.allSessions.formatTimestamp = function () {
+    return moment(this.dayTimestamp).format('MM/DD/YY');
+  };
+
+  Template.allSessions.days = function() {
+    return Days.find({},{sort:{dayTimestamp:-1}});
+  }
+
+  Template.allSessions.selected = function() {
+    return this._id == Session.get("currentDayId") ? "selected" : ""
+  }
+
   Template.allSessions.events({
+    'change #day-select' : function(evt) {
+      var $tgt = $(evt.target);
+      var dayId = $tgt.val();
+      Session.set("currentDayId",dayId);
+    },
     'click .add-day' : function() {
       var newDayString = $("#new-day-date").val();
       //TODO: validation
@@ -116,7 +185,7 @@ if (Meteor.isClient) {
       }
       if (needToCreateDay) {
         dayTimestamp = newDay.valueOf();
-        dayId = Days.insert({active:true, dayTimestamp:dayTimestamp});
+        dayId = Days.insert({active:false, archived:false,  dayTimestamp:dayTimestamp});
         console.log("Added new day %s with id %s", newDayString, dayId)
       }
       if (needToCreateSlots) {
@@ -127,12 +196,6 @@ if (Meteor.isClient) {
       Session.set("currentDayId",dayId);      
     }
   });
-
-  Template.massageTable.slots = function() {
-    var dayId = Session.get("currentDayId");
-
-    return TimeSlots.find({dayId:dayId}, {sort: {slotTimestamp:1}})    
-  }
 }
 
 if (Meteor.isServer) {

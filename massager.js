@@ -1,14 +1,36 @@
+/*
+  
+  Thoughts on security:
+  Otherwise, we can set up user accounts, and create a /admin page (using router)
+
+  We can remove autopublish and subscribe to the right docs based on role.
+
+*/
 //TODO: Remove insecure package
 // Give INSERT permission to everyone
 // Give DELETE permission to admin (with session variable)
+
+//TODO: Remove autopublish package
+// When isAdmin is checked, call subscribe (with name of admin - this should happen server side though!)
 
 TimeSlots = new Meteor.Collection("timeSlots");
 Days = new Meteor.Collection("days")
 
 if (Meteor.isClient) {
+  var isAdmin = null;
+
   Meteor.startup(function () {
+    Meteor.call("isAdmin", document.location.pathname, document.location.search, function(err, result) {
+      if (err) {
+        console.log("Error occured whilst checking admin:", err)
+      } else {
+        isAdmin = result;
+        Session.set("adminTrigger", moment().valueOf());
+      }
+    })
     $("#new-day-date").datepicker();
 
+    //TODO: Move this to after admin??
     var latestActiveDay = Days.findOne({active:true}, {sort:{dayTimestamp : -1}})
     if (latestActiveDay) {
       console.log("Client init: Found an active day (%s). Setting currentDayId in session", moment(latestActiveDay.dayTimestamp).format("MM/DD/YYYY"));
@@ -26,6 +48,10 @@ if (Meteor.isClient) {
   //   }
   // });
 
+  Handlebars.registerHelper("isAdmin", function() {
+    Session.get("adminTrigger"); //HACK: cheap way of setting up a dependency :-)
+    return isAdmin;
+  });
 
   Template.massageTable.date = function() {
     //TODO: Fix

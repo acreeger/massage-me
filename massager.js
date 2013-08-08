@@ -30,14 +30,16 @@ if (Meteor.isClient) {
     })
     $("#new-day-date").datepicker();
 
-    //TODO: Move this to after admin??
-    var latestActiveDay = Days.findOne({active:true}, {sort:{dayTimestamp : -1}})
-    if (latestActiveDay) {
-      console.log("Client init: Found an active day (%s). Setting currentDayId in session", moment(latestActiveDay.dayTimestamp).format("MM/DD/YYYY"));
-      Session.set("currentDayId", latestActiveDay._id)
-    } else {
-      console.log("Client init: Did not find an active day.")
-    }
+    Deps.autorun(function() {
+      var latestActiveDay = Days.findOne({active:true}, {sort:{dayTimestamp : -1}})
+      if (latestActiveDay) {
+        console.log("Client init: Found an active day (%s). Setting currentDayId in session", moment(latestActiveDay.dayTimestamp).format("MM/DD/YYYY"));
+        Session.set("currentDayId", latestActiveDay._id);
+        Session.set("loaded", true);
+      } else {
+        console.log("Client init: Did not find an active day.")
+      }
+    });
   });
 
   // Template.hello.events({
@@ -47,6 +49,11 @@ if (Meteor.isClient) {
   //       console.log("You pressed the button");
   //   }
   // });
+
+  
+  Handlebars.registerHelper("loaded", function() {
+    return Session.get("loaded");
+  });
 
   Handlebars.registerHelper("isAdmin", function() {
     Session.get("adminTrigger"); //HACK: cheap way of setting up a dependency :-)

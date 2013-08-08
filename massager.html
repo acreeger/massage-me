@@ -37,105 +37,108 @@
 
 <template name="massageTable">
   <h1>Massage Booking System</h1>
-  <h3>Massages for {{date}}</h3>
-
-  {{#if isAdmin}}
-    <div>
-      <span>Admin only:</span>
-      {{#if currentDayIsActive}}
-        This list is visible to the public.
-      {{else}}
-        This list is not visible to the public.
-        <button class="btn toggle-active">Make this list visible</button>
-      {{/if}}
-    </div>
-  {{/if}}
-  <table class="table table-striped table-bordered" id="massageTable">
-    <thead>
-      <th>Time Slot</th>
-      <!-- TODO: Add therapist name -->
-      <th>
-        <span id="masseuse1-name">
-        {{#if masseuseName 1}}
-          {{masseuseName 1}}
+  {{#unless loaded}}
+    Loading. Please wait...
+  {{else}}
+    <h3>Massages for {{date}}</h3>
+    {{#if isAdmin}}
+      <div>
+        <span>Admin only:</span>
+        {{#if currentDayIsActive}}
+          This list is visible to the public.
         {{else}}
-          Therapist #1
+          This list is not visible to the public.
+          <button class="btn toggle-active">Make this list visible</button>
         {{/if}}
-        </span>
-        <!-- <button class="btn-link">change</button> -->
-      </th>
-      <th>
-        <span id="masseuse2-name">
-        {{#if masseuseName 2}}
-          {{masseuseName 2}}
-        {{else}}
-          Therapist #2
-        {{/if}}
-        </span>
-        <!-- <button class="btn-link">change</button> -->
-      </th>
-    </thead>
-    {{#each slots}}
-    <tr>
-      <td>{{displayTime}}</td>
-      <td>
-        {{#if masseuse1.available}}
-          <div>
-            {{#if masseuse1.customerName}}
-              {{masseuse1.customerName}}
-              {{#if isAdmin}}
-                <a title="Remove this booking" data-masseuse="1" href="#" class="btn-link remove-booking pull-right">x</a>
-              {{/if}}
-            {{else}}
-              <input class="time-slot-input" id="1-input-{{_id}}" type="text" placeholder="Available slot">
-              <button data-slotId="{{_id}}" data-masseuse="1" class="book-time-slot">Book</button>
-            {{/if}}
-          </div>
-          {{#if isAdmin}}
-            <div><a data-masseuse="1" href="#" class="btn-link make-unavailable">Make unavailable</a></div>
+      </div>
+    {{/if}}
+    <table class="table table-striped table-bordered" id="massageTable">
+      <thead>
+        <th>Time Slot</th>
+        <!-- TODO: Add therapist name -->
+        <th>
+          <span id="masseuse1-name">
+          {{#if masseuseName 1}}
+            {{masseuseName 1}}
+          {{else}}
+            Therapist #1
           {{/if}}
-        {{else}}
-          <div>This slot is unavailable</div>
-          {{#if isAdmin}}
+          </span>
+          <!-- <button class="btn-link">change</button> -->
+        </th>
+        <th>
+          <span id="masseuse2-name">
+          {{#if masseuseName 2}}
+            {{masseuseName 2}}
+          {{else}}
+            Therapist #2
+          {{/if}}
+          </span>
+          <!-- <button class="btn-link">change</button> -->
+        </th>
+      </thead>
+      {{#each slots}}
+      <tr>
+        <td>{{displayTime}}</td>
+        <td>
+          {{#if masseuse1.available}}
             <div>
               {{#if masseuse1.customerName}}
-                (Previously booked by {{masseuse1.customerName}})
+                {{masseuse1.customerName}}
+                {{#if isAdmin}}
+                  <a title="Remove this booking" data-masseuse="1" href="#" class="btn-link remove-booking pull-right">x</a>
+                {{/if}}
+              {{else}}
+                <input class="time-slot-input" id="1-input-{{_id}}" type="text" placeholder="Available slot">
+                <button data-slotId="{{_id}}" data-masseuse="1" class="book-time-slot">Book</button>
               {{/if}}
             </div>
-            <div><a data-masseuse="1" href="#" class="btn-link make-available">Make available</a></div>
-          {{/if}}
-        {{/if}}
-      </td>
-      <td>
-        {{#if masseuse2.available}}
-          <div>
-            {{#if masseuse2.customerName}}
-              {{masseuse2.customerName}}
-              {{#if isAdmin}}
-                <a title="Remove this booking" data-masseuse="2" href="#" class="btn-link remove-booking pull-right">x</a>
-              {{/if}}
-            {{else}}
-              <input class="time-slot-input" id="2-input-{{_id}}" type="text" placeholder="Available slot">
-              <button data-slotId="{{_id}}" data-masseuse="2" class="book-time-slot">Book</button>
+            {{#if isAdmin}}
+              <div><a data-masseuse="1" href="#" class="btn-link make-unavailable">Make unavailable</a></div>
             {{/if}}
-          </div>
-          {{#if isAdmin}}
-            <div><a data-masseuse="2" href="#" class="btn-link make-unavailable">Make unavailable</a></div>
+          {{else}}
+            <div>This slot is unavailable</div>
+            {{#if isAdmin}}
+              <div>
+                {{#if masseuse1.customerName}}
+                  (Previously booked by {{masseuse1.customerName}})
+                {{/if}}
+              </div>
+              <div><a data-masseuse="1" href="#" class="btn-link make-available">Make available</a></div>
+            {{/if}}
           {{/if}}
-        {{else}}
-          <div>This slot is unavailable</div>
-          {{#if isAdmin}}
+        </td>
+        <td>
+          {{#if masseuse2.available}}
             <div>
               {{#if masseuse2.customerName}}
-                (Previously booked by {{masseuse2.customerName}})
+                {{masseuse2.customerName}}
+                {{#if isAdmin}}
+                  <a title="Remove this booking" data-masseuse="2" href="#" class="btn-link remove-booking pull-right">x</a>
+                {{/if}}
+              {{else}}
+                <input class="time-slot-input" id="2-input-{{_id}}" type="text" placeholder="Available slot">
+                <button data-slotId="{{_id}}" data-masseuse="2" class="book-time-slot">Book</button>
               {{/if}}
             </div>
-            <!-- admin only -->
-            <div><a data-masseuse="2" href="#" class="btn-link make-available">Make available</a></div>
+            {{#if isAdmin}}
+              <div><a data-masseuse="2" href="#" class="btn-link make-unavailable">Make unavailable</a></div>
+            {{/if}}
+          {{else}}
+            <div>This slot is unavailable</div>
+            {{#if isAdmin}}
+              <div>
+                {{#if masseuse2.customerName}}
+                  (Previously booked by {{masseuse2.customerName}})
+                {{/if}}
+              </div>
+              <!-- admin only -->
+              <div><a data-masseuse="2" href="#" class="btn-link make-available">Make available</a></div>
+            {{/if}}
           {{/if}}
-        {{/if}}
-      </td>
-    </tr>
-    {{/each}}
-  </table>
+        </td>
+      </tr>
+      {{/each}}
+    </table>
+  {{/unless}}
 </template>

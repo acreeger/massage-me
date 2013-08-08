@@ -10,13 +10,15 @@
 // Give INSERT permission to everyone
 // Give DELETE permission to admin (with session variable)
 
-//TODO: Remove autopublish package
-// When isAdmin is checked, call subscribe (with name of admin - this should happen server side though!)
+//TODO: There is a slight bug: When a new page is created and activated, the non-admin clients are taken to the new page, with no time slots
+//This isn't a major issue, a refresh fixes it, and only happens when the admin and client are viewing at exactly the same time, which isn't likely given our
+//use cases.
 
-TimeSlots = new Meteor.Collection("timeSlots");
-Days = new Meteor.Collection("days")
 
 if (Meteor.isClient) {
+  var TimeSlots = new Meteor.Collection("timeSlots");
+  var Days = new Meteor.Collection("days")
+
   var isAdmin = null;
 
   Meteor.startup(function () {
@@ -25,10 +27,10 @@ if (Meteor.isClient) {
         console.log("Error occured whilst checking admin:", err)
       } else {
         isAdmin = result;
-        Session.set("adminTrigger", moment().valueOf());
+        var daysSubscription = Meteor.subscribe("daysAndTimeSlots");
+        Session.set("adminTrigger", moment().valueOf()); //TODO: replace this with Deps functionality   
       }
-    })
-    $("#new-day-date").datepicker();
+    });
 
     Deps.autorun(function() {
       var latestActiveDay = Days.findOne({active:true}, {sort:{dayTimestamp : -1}})
@@ -184,6 +186,10 @@ if (Meteor.isClient) {
 
   Template.allSessions.selected = function() {
     return this._id == Session.get("currentDayId") ? "selected" : ""
+  }
+
+  Template.allSessions.rendered = function() {
+    $("#new-day-date").datepicker();
   }
 
   Template.allSessions.events({

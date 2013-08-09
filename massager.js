@@ -255,5 +255,6 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
+    console.log("******* Meteor.settings:",Meteor.settings);
   });
 }

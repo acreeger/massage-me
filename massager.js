@@ -1,45 +1,58 @@
-/*
-  
-  Thoughts on security:
-  Otherwise, we can set up user accounts, and create a /admin page (using router)
-
-  We can remove autopublish and subscribe to the right docs based on role.
-
-*/
-//TODO: Remove insecure package
-// Give INSERT permission to everyone
-// Give DELETE permission to admin (with session variable)
-
 //TODO: There is a slight bug: When a new page is created and activated, the non-admin clients are taken to the new page, with no time slots
 //This isn't a major issue, a refresh fixes it, and only happens when the admin and client are viewing at exactly the same time, which isn't likely given our
 //use cases.
 
+/*****************
+
+BUG: Dates created in chrome appear to be a day later than FF and Safari?
+Is this due to the time stamp? Is it considering since ephoch in UTC instead of local?
+ANSWER: It was because Chrome was stuck in a different timezone (EDT rather than PDT). So, I need to put stuff into UTC, and then always dispaly it in Pacific timezone.
+TODO: Implement the above.
+******************/
 
 if (Meteor.isClient) {
   var TimeSlots = new Meteor.Collection("timeSlots");
   var Days = new Meteor.Collection("days")
 
   var isAdmin = null;
+  var adminDependency = new Deps.Dependency
+
+  function getIsAdmin() {
+    adminDependency.depend()
+    return isAdmin;
+  }
+
+  function setIsAdmin(value) {
+    if (isAdmin !== value) {
+      isAdmin = value;
+      adminDependency.changed()
+    }
+  }
 
   Meteor.startup(function () {
     Meteor.call("isAdmin", document.location.pathname, document.location.search, function(err, result) {
       if (err) {
         console.log("Error occured whilst checking admin:", err)
       } else {
-        isAdmin = result;
-        var daysSubscription = Meteor.subscribe("daysAndTimeSlots");
-        Session.set("adminTrigger", moment().valueOf()); //TODO: replace this with Deps functionality   
-      }
-    });
+        setIsAdmin(result);
+        var daysSubscription = Meteor.subscribe("daysAndTimeSlots", function() {
+          Deps.autorun(function() {
+            var latestDay = Days.findOne({active:true}, {sort:{dayTimestamp : -1}})
+            var foundDay = !!latestDay;
 
-    Deps.autorun(function() {
-      var latestActiveDay = Days.findOne({active:true}, {sort:{dayTimestamp : -1}})
-      if (latestActiveDay) {
-        console.log("Client init: Found an active day (%s). Setting currentDayId in session", moment(latestActiveDay.dayTimestamp).format("MM/DD/YYYY"));
-        Session.set("currentDayId", latestActiveDay._id);
-        Session.set("loaded", true);
-      } else {
-        console.log("Client init: Did not find an active day.")
+            if (!foundDay && getIsAdmin()) {
+              latestDay = Days.findOne({}, {sort:{dayTimestamp : -1}})
+            }
+
+            if (latestDay) {
+              console.log("Client init: Found a day (%s, active: %s). Setting currentDayId in session", moment(latestDay.dayTimestamp).format("MM/DD/YYYY"), latestDay.active);
+              Session.set("currentDayId", latestDay._id);
+              Session.set("loaded", true);
+            } else {
+              console.log("Client init: Did not find an active day.")
+            }
+          })
+        });
       }
     });
   });
@@ -57,17 +70,17 @@ if (Meteor.isClient) {
     return Session.get("loaded");
   });
 
-  Handlebars.registerHelper("isAdmin", function() {
-    Session.get("adminTrigger"); //HACK: cheap way of setting up a dependency :-)
-    return isAdmin;
-  });
+  Handlebars.registerHelper("isAdmin", getIsAdmin);
 
   Template.massageTable.date = function() {
-    //TODO: Fix
+    var day;
     var dayId = Session.get("currentDayId");
     if (dayId) {
-      var dayEntry = Days.findOne(dayId);
-      return moment(dayEntry.dayTimestamp).format('MMMM Do YYYY')
+      day = Days.findOne(dayId);
+    }
+
+    if (day) {
+      return moment(day.dayTimestamp).format('MMMM Do YYYY')
     } else {
       return "None selected" //HACK
     }
@@ -86,7 +99,9 @@ if (Meteor.isClient) {
 
   Template.massageTable.currentDayIsActive = function() {
     var dayId = Session.get("currentDayId");
-    if (dayId) return Days.findOne(dayId).active;    
+    if (dayId) day = Days.findOne(dayId);
+
+    if (day) return day.active
     else return true;
   }
 
@@ -152,7 +167,7 @@ if (Meteor.isClient) {
   function createSlots(dayId, timestamp) {
     var baseDate = moment(timestamp);
     baseDate.hours("10");
-    for (var i = 0; i < 15; i++) {
+    for (var i = 0; i < 14; i++) {
       var newTimestamp = baseDate.valueOf() + i * INCREMENT
       var slotMoment = moment(newTimestamp);
       var time = slotMoment.format("hh:mmA");
@@ -202,9 +217,10 @@ if (Meteor.isClient) {
       var newDayString = $("#new-day-date").val();
       //TODO: validation
       if (newDayString != "") {
-        //TODO: Convert to UTC?
+        //TODO: Convert to UTC? Need to convert to PDT? Then store the UTC valueOf ??
         var newDay = moment(newDayString, "MM/DD/YYYY");
         var sinceEpoch = newDay.valueOf();
+        // console.log("********* sinceEpoch", sinceEpoch);
         var existingDay = Days.findOne({dayTimestamp:sinceEpoch});
         var dayId;
         var dayTimestamp;

@@ -1,7 +1,11 @@
 {
   "packages": {
     "router": {},
-    "moment": {},
+    "moment": {
+      "git": "https://github.com/acreeger/meteor-moment.git",
+      "branch": "v2.1.0"
+    },
+    "moment-timezone": {},
     "jquery-ui-bootstrap": {}
   }
 }

@@ -11,6 +11,8 @@ TODO: Implement the above.
 ******************/
 
 if (Meteor.isClient) {
+  var TIMEZONE = "America/Los_Angeles";
+
   var TimeSlots = new Meteor.Collection("timeSlots");
   var Days = new Meteor.Collection("days")
 
@@ -45,7 +47,7 @@ if (Meteor.isClient) {
             }
 
             if (latestDay) {
-              console.log("Client init: Found a day (%s, active: %s). Setting currentDayId in session", moment(latestDay.dayTimestamp).format("MM/DD/YYYY"), latestDay.active);
+              console.log("Client init: Found a day (%s, active: %s). Setting currentDayId in session", moment(latestDay.dayTimestamp).tz(TIMEZONE).format("MM/DD/YYYY"), latestDay.active);
               Session.set("currentDayId", latestDay._id);
               Session.set("loaded", true);
             } else {
@@ -80,7 +82,7 @@ if (Meteor.isClient) {
     }
 
     if (day) {
-      return moment(day.dayTimestamp).format('MMMM Do YYYY')
+      return moment(day.dayTimestamp).tz(TIMEZONE).format('MMMM Do YYYY');
     } else {
       return "None selected" //HACK
     }
@@ -165,12 +167,12 @@ if (Meteor.isClient) {
   var INCREMENT = 20 * 60 * 1000
 
   function createSlots(dayId, timestamp) {
-    var baseDate = moment(timestamp);
+    var baseDate = moment(timestamp).tz(TIMEZONE);
     baseDate.hours("10");
     for (var i = 0; i < 14; i++) {
       var newTimestamp = baseDate.valueOf() + i * INCREMENT
       var slotMoment = moment(newTimestamp);
-      var time = slotMoment.format("hh:mmA");
+      var time = slotMoment.tz(TIMEZONE).format("hh:mmA");
 
       var newSlot = {
         "ordinal" : i
@@ -192,7 +194,7 @@ if (Meteor.isClient) {
   }
 
   Template.allSessions.formatTimestamp = function () {
-    return moment(this.dayTimestamp).format('MM/DD/YY');
+    return moment(this.dayTimestamp).tz(TIMEZONE).format('MM/DD/YY');
   };
 
   Template.allSessions.days = function() {
@@ -215,11 +217,17 @@ if (Meteor.isClient) {
     },
     'click .add-day' : function() {
       var newDayString = $("#new-day-date").val();
-      //TODO: validation
-      if (newDayString != "") {
-        //TODO: Convert to UTC? Need to convert to PDT? Then store the UTC valueOf ??
-        var newDay = moment(newDayString, "MM/DD/YYYY");
-        var sinceEpoch = newDay.valueOf();
+      if (newDayString.match(/^\d\d\/\d\d\/\d\d\d\d$/) && moment(newDayString, "MM/DD/YYYY").isValid()) {
+        var parts = newDayString.split("/");
+        var month = parseInt(parts[0], 10) - 1 //0 - 11
+          , day   = parts[1]
+          , year  = parts[2];
+        var momentInPacificTZ = moment().tz(TIMEZONE);
+        momentInPacificTZ.date(day).month(month).year(year).hours(0).minutes(0).seconds(0).milliseconds(0);
+        var sinceEpoch = momentInPacificTZ.valueOf();
+        // console.log("************* Moment in UTC:", momentInPacificTZ.utc().format());
+        // console.log("************* Moment in London:", momentInPacificTZ.tz("Europe/London").format());
+        // console.log("************* Moment in SF:", momentInPacificTZ.tz("America/Los_Angeles").format());
         // console.log("********* sinceEpoch", sinceEpoch);
         var existingDay = Days.findOne({dayTimestamp:sinceEpoch});
         var dayId;
@@ -237,24 +245,24 @@ if (Meteor.isClient) {
             needToCreateSlots = false;
           }
         }
-      }
-      if (needToCreateDay) {
-        dayTimestamp = newDay.valueOf();
-        dayId = Days.insert({active:false, archived:false,  dayTimestamp:dayTimestamp});
-        console.log("Added new day %s with id %s", newDayString, dayId)
-      }
-      if (needToCreateSlots) {
-        console.log("Creating slots for day %s with id", newDayString, dayId);
-        createSlots(dayId, dayTimestamp);
-      }
 
-      Session.set("currentDayId",dayId);      
+        if (needToCreateDay) {
+          dayTimestamp = sinceEpoch;
+          dayId = Days.insert({active:false, archived:false,  dayTimestamp:dayTimestamp});
+          console.log("Added new day %s with id %s", newDayString, dayId)
+        }
+        if (needToCreateSlots) {
+          console.log("Creating slots for day %s with id", newDayString, dayId);
+          createSlots(dayId, dayTimestamp);
+        }
+
+        Session.set("currentDayId",dayId);
+      }
     }
   });
 }
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
-    console.log("******* Meteor.settings:",Meteor.settings);
   });
 }

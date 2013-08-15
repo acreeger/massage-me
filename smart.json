@@ -1,6 +1,5 @@
 {
   "packages": {
-    "router": {},
     "moment-timezone": {},
     "jquery-ui-bootstrap": {}
   }

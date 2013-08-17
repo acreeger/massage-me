@@ -2,13 +2,19 @@
   "meteor": {},
   "dependencies": {
     "basePackages": {
-      "moment-timezone": {}
+      "moment-timezone": {},
+      "bootstrap-datepicker2": {}
     },
     "packages": {
       "moment-timezone": {
         "git": "https://github.com/acreeger/meteor-moment-timezone",
         "tag": "v0.0.1.2",
         "commit": "902cce183f0511b938f07101f56290016100abc8"
+      },
+      "bootstrap-datepicker2": {
+        "git": "https://github.com/deepwell/meteor-bootstrap-datepicker.git",
+        "tag": "v1.1.3",
+        "commit": "4581eef4760ad2022d0143dcc8cc0a28afc2f7a2"
       },
       "moment-alternative": {
         "git": "https://github.com/acreeger/meteor-moment.git",

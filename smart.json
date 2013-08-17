@@ -1,5 +1,6 @@
 {
   "packages": {
-    "moment-timezone": {}
+    "moment-timezone": {},
+    "bootstrap-datepicker2": {}
   }
 }

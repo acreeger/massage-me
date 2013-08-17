@@ -206,7 +206,7 @@ if (Meteor.isClient) {
   }
 
   Template.allSessions.rendered = function() {
-    $("#new-day-date").datepicker();
+    $("#new-day-date").datepicker({autoclose:true});
   }
 
   Template.allSessions.events({

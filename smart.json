@@ -1,6 +1,5 @@
 {
   "packages": {
-    "moment-timezone": {},
-    "jquery-ui-bootstrap": {}
+    "moment-timezone": {}
   }
 }

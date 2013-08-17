@@ -2,8 +2,7 @@
   "meteor": {},
   "dependencies": {
     "basePackages": {
-      "moment-timezone": {},
-      "jquery-ui-bootstrap": {}
+      "moment-timezone": {}
     },
     "packages": {
       "moment-timezone": {
@@ -11,20 +10,10 @@
         "tag": "v0.0.1.2",
         "commit": "902cce183f0511b938f07101f56290016100abc8"
       },
-      "jquery-ui-bootstrap": {
-        "git": "https://github.com/TimHeckel/meteor-jquery-ui-bootstrap.git",
-        "tag": "v0.1.2",
-        "commit": "fa742a85639307003e105898e15b631394b63509"
-      },
       "moment-alternative": {
         "git": "https://github.com/acreeger/meteor-moment.git",
-        "tag": "v2.1.0.1",
-        "commit": "d9bd8cd02a6455e5cca644176dd324df25bde1c6"
-      },
-      "jquery-ui": {
-        "git": "https://github.com/TimHeckel/meteor-jquery-ui.git",
-        "tag": "v1.9.2",
-        "commit": "c437d45edcf1367df8d5ffa8bad2867758030bd2"
+        "tag": "v2.1.0.2",
+        "commit": "0053eb206d3da8d54f5015ec15d6ed16c0e5986f"
       }
     }
   }

@@ -8,8 +8,8 @@
     "packages": {
       "moment-timezone": {
         "git": "https://github.com/acreeger/meteor-moment-timezone",
-        "tag": "v0.0.1.2",
-        "commit": "902cce183f0511b938f07101f56290016100abc8"
+        "tag": "v0.0.1.3",
+        "commit": "9426ba2a0668fb4d087e297e499b31ddf3f383fd"
       },
       "bootstrap-datepicker2": {
         "git": "https://github.com/deepwell/meteor-bootstrap-datepicker.git",
@@ -18,8 +18,8 @@
       },
       "moment-alternative": {
         "git": "https://github.com/acreeger/meteor-moment.git",
-        "tag": "v2.1.0.2",
-        "commit": "0053eb206d3da8d54f5015ec15d6ed16c0e5986f"
+        "tag": "v2.1.0.3",
+        "commit": "ab7d2dd2f5035b9eb011cc8ddb34d24da4b18cde"
       }
     }
   }

@@ -56,6 +56,37 @@
   </th>
 </template>
 
+<template name="individualBooking">
+  <td data-masseuse="{{masseuseNum}}">
+    {{#if masseuse.available}}
+      <div>
+        {{#if masseuse.customerName}}
+          {{masseuse.customerName}}
+          {{#if isAdmin}}
+            <a title="Remove this booking" href="#" class="btn-link remove-booking pull-right">x</a>
+          {{/if}}
+        {{else}}
+          <input class="time-slot-input" type="text" placeholder="Available slot">
+          <button class="book-time-slot">Book</button>
+        {{/if}}
+      </div>
+      {{#if isAdmin}}
+        <div><a href="#" class="btn-link make-unavailable">Make unavailable</a></div>
+      {{/if}}
+    {{else}}
+      <div>This slot is unavailable</div>
+      {{#if isAdmin}}
+        <div>
+          {{#if masseuse.customerName}}
+            (Previously booked by {{masseuse.customerName}})
+          {{/if}}
+        </div>
+        <div><a href="#" class="btn-link make-available">Make available</a></div>
+      {{/if}}
+    {{/if}}
+  </td>
+</template>
+
 <template name="massageTable">
   <h1>Massage Booking System</h1>
   {{#unless loaded}}
@@ -79,66 +110,11 @@
         {{partial "masseuseHeader" masseuse="2"}}
       </thead>
       {{#each slots}}
-      <tr>
-        <td>{{displayTime}}</td>
-        <td>
-          {{#if masseuse1.available}}
-            <div>
-              {{#if masseuse1.customerName}}
-                {{masseuse1.customerName}}
-                {{#if isAdmin}}
-                  <a title="Remove this booking" data-masseuse="1" href="#" class="btn-link remove-booking pull-right">x</a>
-                {{/if}}
-              {{else}}
-                <input class="time-slot-input" id="1-input-{{_id}}" type="text" placeholder="Available slot">
-                <button data-slotId="{{_id}}" data-masseuse="1" class="book-time-slot">Book</button>
-              {{/if}}
-            </div>
-            {{#if isAdmin}}
-              <div><a data-masseuse="1" href="#" class="btn-link make-unavailable">Make unavailable</a></div>
-            {{/if}}
-          {{else}}
-            <div>This slot is unavailable</div>
-            {{#if isAdmin}}
-              <div>
-                {{#if masseuse1.customerName}}
-                  (Previously booked by {{masseuse1.customerName}})
-                {{/if}}
-              </div>
-              <div><a data-masseuse="1" href="#" class="btn-link make-available">Make available</a></div>
-            {{/if}}
-          {{/if}}
-        </td>
-        <td>
-          {{#if masseuse2.available}}
-            <div>
-              {{#if masseuse2.customerName}}
-                {{masseuse2.customerName}}
-                {{#if isAdmin}}
-                  <a title="Remove this booking" data-masseuse="2" href="#" class="btn-link remove-booking pull-right">x</a>
-                {{/if}}
-              {{else}}
-                <input class="time-slot-input" id="2-input-{{_id}}" type="text" placeholder="Available slot">
-                <button data-slotId="{{_id}}" data-masseuse="2" class="book-time-slot">Book</button>
-              {{/if}}
-            </div>
-            {{#if isAdmin}}
-              <div><a data-masseuse="2" href="#" class="btn-link make-unavailable">Make unavailable</a></div>
-            {{/if}}
-          {{else}}
-            <div>This slot is unavailable</div>
-            {{#if isAdmin}}
-              <div>
-                {{#if masseuse2.customerName}}
-                  (Previously booked by {{masseuse2.customerName}})
-                {{/if}}
-              </div>
-              <!-- admin only -->
-              <div><a data-masseuse="2" href="#" class="btn-link make-available">Make available</a></div>
-            {{/if}}
-          {{/if}}
-        </td>
-      </tr>
+        <tr data-slot-id="{{_id}}" id="slot_row_{{_id}}">
+          <td>{{displayTime}}</td>
+          {{partial "individualBooking" masseuseNum="1" masseuse=masseuse1}}
+          {{partial "individualBooking" masseuseNum="2" masseuse=masseuse2}}
+        </tr>
       {{/each}}
     </table>
   {{/unless}}

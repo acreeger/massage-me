@@ -126,7 +126,7 @@ Handlebars.registerHelper("partial", function(template, options) {
   function toggleAvailability(evt, slot, isAvailable) {
       evt.preventDefault();
       var $tgt = $(evt.target);
-      var masseuse = $tgt.attr("data-masseuse");
+      var masseuse = $tgt.closest("td").attr("data-masseuse");
 
       var field = "masseuse" + masseuse + ".available"
       var update = {};
@@ -135,19 +135,22 @@ Handlebars.registerHelper("partial", function(template, options) {
   }
 
   function updateCustomerName(slot, masseuse, name) {
-    var field = "masseuse" + masseuse + ".customerName";
-    var update = {};
-    update[field] = name;
-    TimeSlots.update(slot._id, { $set: update});
+    if (!masseuse || masseuse === "") {
+      console.log("Not updating customer name because masseuse # is not valid: '%s'",masseuse);
+    } else {
+      var field = "masseuse" + masseuse + ".customerName";
+      var update = {};
+      update[field] = name;
+      TimeSlots.update(slot._id, { $set: update});
+    }
   }
 
   Template.massageTable.events({
     'click .book-time-slot' : function(evt) {
-      var $tgt = $(evt.target);
-      var masseuse = $tgt.attr("data-masseuse");
+      var $cell = $(evt.target).closest("td");
+      var masseuse = $cell.attr("data-masseuse");
 
-      var inputSelector = "#" + [masseuse,'input',this._id].join("-");
-      var name = $(inputSelector).val();
+      var name = $cell.find("input.time-slot-input").val();
 
       if (name !== "") {
         updateCustomerName(this, masseuse, name);
@@ -163,7 +166,7 @@ Handlebars.registerHelper("partial", function(template, options) {
       evt.preventDefault();
       if (confirm("Are you sure you wish to remove this booking?")) {
         var $tgt = $(evt.target);
-        var masseuse = $tgt.attr("data-masseuse");
+        var masseuse = $tgt.closest("td").attr("data-masseuse");
 
         updateCustomerName(this, masseuse, "");
       }
@@ -260,10 +263,6 @@ Handlebars.registerHelper("partial", function(template, options) {
         var momentInPacificTZ = moment().tz(TIMEZONE);
         momentInPacificTZ.date(day).month(month).year(year).hours(0).minutes(0).seconds(0).milliseconds(0);
         var sinceEpoch = momentInPacificTZ.valueOf();
-        // console.log("************* Moment in UTC:", momentInPacificTZ.utc().format());
-        // console.log("************* Moment in London:", momentInPacificTZ.tz("Europe/London").format());
-        // console.log("************* Moment in SF:", momentInPacificTZ.tz("America/Los_Angeles").format());
-        // console.log("********* sinceEpoch", sinceEpoch);
         var existingDay = Days.findOne({dayTimestamp:sinceEpoch});
         var dayId;
         var dayTimestamp;

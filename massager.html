@@ -4,7 +4,6 @@
 </head>
 
 <body>
-  <!-- TODO: Make admin only -->
   {{#if isAdmin}}
     {{> allSessions}}
   {{/if}}
@@ -34,6 +33,28 @@
   </div>
 </template>
 
+<template name="masseuseHeader">
+  <th data-masseuse="{{masseuse}}">
+    <div class="masseuse-name-readonly">
+      <span id="masseuse1-name">
+      {{#if masseuseName masseuse}}
+        {{masseuseName masseuse}}
+      {{else}}
+        Therapist #{{masseuse}}
+      {{/if}}
+      </span>
+      {{#if isAdmin}}
+        <!-- <button class="change-masseuse-name btn-link">change</button> -->
+        <a href="#" class="change-masseuse-name">change</a>
+      {{/if}}
+    </div>
+    <div class="masseuse-name-editing">
+      <input placeholder="Therapist #{{masseuse}}" type="text" class="masseuse-name" value="{{masseuseName masseuse}}" />
+      <!-- <button class="save-masseuse-name btn-link">save</button> -->
+      <a href="#" class="save-masseuse-name">save</a>
+    </div>
+  </th>
+</template>
 
 <template name="massageTable">
   <h1>Massage Booking System</h1>
@@ -43,7 +64,6 @@
     <h3>Massages for {{date}}</h3>
     {{#if isAdmin}}
       <div>
-        <span>Admin only:</span>
         {{#if currentDayIsActive}}
           This list is visible to the public.
         {{else}}
@@ -55,27 +75,8 @@
     <table class="table table-striped table-bordered" id="massageTable">
       <thead>
         <th>Time Slot</th>
-        <!-- TODO: Add therapist name -->
-        <th>
-          <span id="masseuse1-name">
-          {{#if masseuseName 1}}
-            {{masseuseName 1}}
-          {{else}}
-            Therapist #1
-          {{/if}}
-          </span>
-          <!-- <button class="btn-link">change</button> -->
-        </th>
-        <th>
-          <span id="masseuse2-name">
-          {{#if masseuseName 2}}
-            {{masseuseName 2}}
-          {{else}}
-            Therapist #2
-          {{/if}}
-          </span>
-          <!-- <button class="btn-link">change</button> -->
-        </th>
+        {{partial "masseuseHeader" masseuse="1"}}
+        {{partial "masseuseHeader" masseuse="2"}}
       </thead>
       {{#each slots}}
       <tr>

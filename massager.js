@@ -2,14 +2,6 @@
 //This isn't a major issue, a refresh fixes it, and only happens when the admin and client are viewing at exactly the same time, which isn't likely given our
 //use cases.
 
-/*****************
-
-BUG: Dates created in chrome appear to be a day later than FF and Safari?
-Is this due to the time stamp? Is it considering since ephoch in UTC instead of local?
-ANSWER: It was because Chrome was stuck in a different timezone (EDT rather than PDT). So, I need to put stuff into UTC, and then always dispaly it in Pacific timezone.
-TODO: Implement the above.
-******************/
-
 if (Meteor.isClient) {
   var TIMEZONE = "America/Los_Angeles";
 
@@ -67,12 +59,41 @@ if (Meteor.isClient) {
   //   }
   // });
 
+  // # Partials with parameters!
+  // # Thanks to http://zachsnow.com/#!/blog/2012/handlebarsjs/
+  // from: https://gist.github.com/dmayo3/3475017
+
+Handlebars.registerHelper("partial", function(template, options) {
+  // # Find the partial in question.
+  var partial = Template[template]
+
+  // # Extend the current context
+  var context = _.extend({}, this, options.hash);
   
+  // # Render, marked as safe so it isn't escaped.
+  return new Handlebars.SafeString(partial(context))
+});
+
   Handlebars.registerHelper("loaded", function() {
     return Session.get("loaded");
   });
 
   Handlebars.registerHelper("isAdmin", getIsAdmin);
+
+  Template.masseuseHeader.masseuseName = function(masseuseNumber) {
+    var day = Days.findOne(Session.get("currentDayId"));
+    var result = "";
+
+    if (day) {
+      var key = "masseuse" + masseuseNumber;
+
+      if (day[key]) {
+        result = day[key].name;
+      }
+    }
+
+    return result;
+  }
 
   Template.massageTable.date = function() {
     var day;
@@ -86,11 +107,6 @@ if (Meteor.isClient) {
     } else {
       return "None selected" //HACK
     }
-  }
-
-  //TODO: Implement this when we can change the masseuse name here
-  Template.massageTable.masseuseName = function(masseuseNumber) {
-    return "";
   }
 
   Template.massageTable.slots = function() {
@@ -161,6 +177,25 @@ if (Meteor.isClient) {
         var newVal = !day.active;
         Days.update(dayId, {$set : {active: newVal}})        
       }
+    },
+    'click .change-masseuse-name' : function(evt) {
+      evt.preventDefault();
+      var $target = $(evt.target);
+      $target.closest("th").addClass("editing");
+    },
+    'click .save-masseuse-name' : function(evt) {
+      evt.preventDefault();
+      var $target = $(evt.target);
+      var $th = $target.closest("th");
+      var masseuse = $th.attr("data-masseuse");
+      var newName = $th.find("input.masseuse-name").val();
+      var dayId = Session.get("currentDayId")
+      var currentDay = Days.findOne(dayId);
+      var update = {};
+
+      update["masseuse" + masseuse] = {name:newName};
+      Days.update(dayId,{$set : update});
+      $th.removeClass("editing")
     }
   });
 
@@ -248,7 +283,18 @@ if (Meteor.isClient) {
 
         if (needToCreateDay) {
           dayTimestamp = sinceEpoch;
-          dayId = Days.insert({active:false, archived:false,  dayTimestamp:dayTimestamp});
+          var dayData = {
+            active:false,
+            archived:false,
+            dayTimestamp:dayTimestamp,
+            masseuse1 : {
+              name : ""
+            },
+            masseuse2 : {
+              name : ""
+            }
+          }
+          dayId = Days.insert(dayData);
           console.log("Added new day %s with id %s", newDayString, dayId)
         }
         if (needToCreateSlots) {

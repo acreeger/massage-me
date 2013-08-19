@@ -24,6 +24,18 @@
   color: red;
 }
 
+.editing .masseuse-name-readonly {
+  display: none
+}
+
+.masseuse-name-editing {
+  display: none
+}
+
+.editing .masseuse-name-editing {
+  display: block
+}
+
 /*.add-day, .book-time-slot {
   margin-bottom: 10px;
 }

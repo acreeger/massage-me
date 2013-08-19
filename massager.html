@@ -9,6 +9,22 @@
   {{/if}}
   <br>
   {{> massageTable}}
+  <div id="termsModal" class="modal hide fade">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h3>Payroll Deduction Authorization</h3>
+    </div>
+    <div class="modal-body">
+      <p>By booking a massage using this system, you agree to the following:</p>
+      <blockquote>
+        <p>I hereby authorize AKQA to deduct $10.00 (after-tax) from the my next feasible paycheck as repayment for my share of the massage fees for a 20 minute chair massage rendered by Erika Sydow and Company.</p>
+        <p><strong>If for whatever reason I am unable to make my massage appointment, I understand and agree to pay a $10.00 non-refundable no show fee to AKQA,&nbsp;Inc. which will be automatically deducted from my next feasible paycheck.</strong></p>
+      </blockquote>
+    </div>
+    <div class="modal-footer">
+      <a href="#" class="btn" data-dismiss="modal">Close</a>
+    </div>
+  </div>
 </body>
 
 <template name="allSessions">
@@ -34,7 +50,7 @@
 </template>
 
 <template name="masseuseHeader">
-  <th data-masseuse="{{masseuse}}">
+  <th class="masseuse-column" data-masseuse="{{masseuse}}">
     <div class="masseuse-name-readonly">
       <span id="masseuse1-name">
       {{#if masseuseName masseuse}}
@@ -44,20 +60,18 @@
       {{/if}}
       </span>
       {{#if isAdmin}}
-        <!-- <button class="change-masseuse-name btn-link">change</button> -->
         <a href="#" class="change-masseuse-name pull-right">change</a>
       {{/if}}
     </div>
     <div class="masseuse-name-editing">
       <input placeholder="Therapist #{{masseuse}}" type="text" class="masseuse-name" value="{{masseuseName masseuse}}" />
-      <!-- <button class="save-masseuse-name btn-link">save</button> -->
       <a href="#" class="save-masseuse-name pull-right">save</a>
     </div>
   </th>
 </template>
 
 <template name="individualBooking">
-  <td data-masseuse="{{masseuseNum}}">
+  <td class="masseuse-column" data-masseuse="{{masseuseNum}}">
     {{#if masseuse.available}}
       <div>
         {{#if masseuse.customerName}}
@@ -66,8 +80,18 @@
             <a title="Remove this booking" href="#" class="btn-link remove-booking pull-right">x</a>
           {{/if}}
         {{else}}
-          <input class="time-slot-input" type="text" placeholder="Available slot">
-          <button class="book-time-slot">Book</button>
+          <div>
+            <input class="time-slot-input" type="text" placeholder="Available slot">
+            <button class="book-time-slot">Book</button>
+          </div>
+          <div class="hide terms-conditions">
+            {{#unless isAdmin}}
+              <input class="pull-left terms-conditions-checkbox" type="checkbox" value="agreed">
+              <div class="terms-summary">
+                I authorize AKQA to deduct $10 from my next paycheck, even if I don't show. <a href="#termsModal" data-toggle="modal">See full terms.</a>
+              </div>
+            {{/unless}}
+          </div>
         {{/if}}
       </div>
       {{#if isAdmin}}
@@ -105,12 +129,12 @@
     {{/if}}
     <table class="table table-striped table-bordered" id="massageTable">
       <thead>
-        <th>Time Slot</th>
+        <th class="left-column">Time Slot</th>
         {{partial "masseuseHeader" masseuse="1"}}
         {{partial "masseuseHeader" masseuse="2"}}
       </thead>
       {{#each slots}}
-        <tr data-slot-id="{{_id}}" id="slot_row_{{_id}}">
+        <tr class="left-column" data-slot-id="{{_id}}" id="slot_row_{{_id}}">
           <td>{{displayTime}}</td>
           {{partial "individualBooking" masseuseNum="1" masseuse=masseuse1}}
           {{partial "individualBooking" masseuseNum="2" masseuse=masseuse2}}

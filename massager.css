@@ -1,7 +1,7 @@
 /* CSS declarations go here */
 #massageTable {
   margin-top:10px;
-  width: 670px;
+  width: 675px;
 }
 
 .admin-container {
@@ -34,6 +34,29 @@
 
 .editing .masseuse-name-editing {
   display: block
+}
+
+.terms-summary {
+  margin-left: 17px;
+}
+
+.left-column {
+  width: 82px;
+}
+
+.masseuse-column {
+  width: 293px;
+}
+
+.error {
+  color: red;
+}
+
+blockquote p {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: auto;
 }
 
 /*.add-day, .book-time-slot {

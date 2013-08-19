@@ -149,11 +149,28 @@ Handlebars.registerHelper("partial", function(template, options) {
     'click .book-time-slot' : function(evt) {
       var $cell = $(evt.target).closest("td");
       var masseuse = $cell.attr("data-masseuse");
+      var $checkbox = $cell.find("input.terms-conditions-checkbox");
 
-      var name = $cell.find("input.time-slot-input").val();
+      if (isAdmin || $checkbox.is(":checked")){
+        var name = $cell.find("input.time-slot-input").val();
 
-      if (name !== "") {
-        updateCustomerName(this, masseuse, name);
+        if (name !== "") {
+          updateCustomerName(this, masseuse, name);
+        }
+      } else {
+        var $summary = $cell.find(".terms-summary")
+        $summary.addClass("error");
+        Meteor.setTimeout(function() {
+          $summary.removeClass("error");
+        },7500)
+      }
+    },
+    'change .terms-conditions-checkbox' : function(evt) {
+      var $checkbox = $(evt.target);
+      var $cell = $checkbox.closest("td");
+
+      if ($checkbox.is(":checked")) {
+        $cell.find(".terms-summary").removeClass("error")
       }
     },
     'click .make-unavailable' : function(evt) {
@@ -199,6 +216,18 @@ Handlebars.registerHelper("partial", function(template, options) {
       update["masseuse" + masseuse] = {name:newName};
       Days.update(dayId,{$set : update});
       $th.removeClass("editing")
+    },
+    'keyup .time-slot-input' : function(evt) {
+      if (!isAdmin) {
+        var $input = $(evt.target);
+        var val = $input.val();
+        var $termsContainer = $input.closest("td").find(".terms-conditions");
+        if (val === "") {
+          $termsContainer.slideUp();
+        } else {
+          $termsContainer.slideDown();
+        }
+      }
     }
   });
 

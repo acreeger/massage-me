@@ -38,20 +38,20 @@
     <div class="masseuse-name-readonly">
       <span id="masseuse1-name">
       {{#if masseuseName masseuse}}
-        {{masseuseName masseuse}}
+        Therapist: {{masseuseName masseuse}}
       {{else}}
         Therapist #{{masseuse}}
       {{/if}}
       </span>
       {{#if isAdmin}}
         <!-- <button class="change-masseuse-name btn-link">change</button> -->
-        <a href="#" class="change-masseuse-name">change</a>
+        <a href="#" class="change-masseuse-name pull-right">change</a>
       {{/if}}
     </div>
     <div class="masseuse-name-editing">
       <input placeholder="Therapist #{{masseuse}}" type="text" class="masseuse-name" value="{{masseuseName masseuse}}" />
       <!-- <button class="save-masseuse-name btn-link">save</button> -->
-      <a href="#" class="save-masseuse-name">save</a>
+      <a href="#" class="save-masseuse-name pull-right">save</a>
     </div>
   </th>
 </template>

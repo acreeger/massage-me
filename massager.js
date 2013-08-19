@@ -240,7 +240,7 @@ Handlebars.registerHelper("partial", function(template, options) {
       var newTimestamp = baseDate.valueOf() + i * INCREMENT
       var slotMoment = moment(newTimestamp);
       var time = slotMoment.tz(TIMEZONE).format("hh:mmA");
-
+      var available = i == 6 ? false : true;
       var newSlot = {
         "ordinal" : i
         ,"dayId" : dayId
@@ -248,11 +248,11 @@ Handlebars.registerHelper("partial", function(template, options) {
         ,"slotTimestamp":newTimestamp
         , "masseuse1" : {
             "customerName" : ""
-            , available: true
+            , available: available
           }
         , "masseuse2" : {
             "customerName" : ""
-            , available: true
+            , available: available
           }
       }
 
@@ -316,7 +316,7 @@ Handlebars.registerHelper("partial", function(template, options) {
             archived:false,
             dayTimestamp:dayTimestamp,
             masseuse1 : {
-              name : ""
+              name : "Erika"
             },
             masseuse2 : {
               name : ""

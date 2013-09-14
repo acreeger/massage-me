@@ -4,6 +4,17 @@
   width: 700px;
 }
 
+.add-timeslot-container {
+  padding-bottom: 10px;
+  width: 700px;
+  text-align: right;
+}
+
+.day-admin-container {
+  width: 700px;
+  margin: 0 !important;
+}
+
 .admin-container {
   margin: 20px;
   padding: 20px;
@@ -46,6 +57,10 @@
 
 .masseuse-column {
   width: 293px;
+}
+
+select.time-selector {
+  width: 60px;
 }
 
 .error {

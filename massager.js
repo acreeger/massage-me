@@ -63,16 +63,16 @@ if (Meteor.isClient) {
   // # Thanks to http://zachsnow.com/#!/blog/2012/handlebarsjs/
   // from: https://gist.github.com/dmayo3/3475017
 
-Handlebars.registerHelper("partial", function(template, options) {
-  // # Find the partial in question.
-  var partial = Template[template]
+  Handlebars.registerHelper("partial", function(template, options) {
+    // # Find the partial in question.
+    var partial = Template[template]
 
-  // # Extend the current context
-  var context = _.extend({}, this, options.hash);
-  
-  // # Render, marked as safe so it isn't escaped.
-  return new Handlebars.SafeString(partial(context))
-});
+    // # Extend the current context
+    var context = _.extend({}, this, options.hash);
+
+    // # Render, marked as safe so it isn't escaped.
+    return new Handlebars.SafeString(partial(context))
+  });
 
   Handlebars.registerHelper("loaded", function() {
     return Session.get("loaded");
@@ -109,11 +109,13 @@ Handlebars.registerHelper("partial", function(template, options) {
     }
   }
 
-  Template.massageTable.slots = function() {
+  var getSlotsCursor = function() {
     var dayId = Session.get("currentDayId");
 
-    return TimeSlots.find({dayId:dayId}, {sort: {slotTimestamp:1}})   
+    return TimeSlots.find({dayId:dayId}, {sort: {slotTimestamp:1}});
   }
+
+  Template.massageTable.slots = getSlotsCursor;
 
   Template.massageTable.currentDayIsActive = function() {
     var dayId = Session.get("currentDayId");
@@ -121,6 +123,60 @@ Handlebars.registerHelper("partial", function(template, options) {
 
     if (day) return day.active
     else return true;
+  }
+
+  Template.massageTable.hours = function() {
+    var result = [];
+    for (var i = 9; i <= 17; i++) {
+      var text = i > 12 ? i - 12 : i
+      result.push({value:i, text:text})
+    }
+    return result;
+  }
+
+  Template.massageTable.hoursSelected = function() {
+    var firstSlot = getSlotsCursor().fetch()[0];
+
+    if (firstSlot) {
+      var time = moment(firstSlot.slotTimestamp).tz(TIMEZONE);
+      return time.hours() === this.value ? "selected" : "";
+    }
+  }
+
+  Template.massageTable.minutes = function() {
+    var result = [];
+    for (var i = 0; i < 60; i = i + 5) {
+      var text = i < 10 ? "0" + i : i;
+      result.push({value:i, text:text})
+    }
+    return result;
+  }
+
+  Template.massageTable.minutesSelected = function() {
+    var firstSlot = getSlotsCursor().fetch()[0];
+
+    var time = moment(firstSlot.slotTimestamp).tz(TIMEZONE);
+    return time.minutes() === this.value ? "selected" : "";
+  }
+
+  Template.massageTable.increments = function() {
+    var result = [];
+    for (var i = 5; i < 60; i = i + 5) {
+      result.push({value:i, text:i})
+    }
+    return result;
+  }
+
+  Template.massageTable.incrementsSelected = function() {
+    var slots = getSlotsCursor().fetch();
+    var currentIncrement;
+    if (slots.length > 0) {
+      currentIncrement = determineIncrement(slots[0],slots[1])
+    } else {
+      currentIncrement = INCREMENT;
+    }
+
+    return (currentIncrement / 60 / 1000) === this.value ? "selected" : "";
   }
 
   function toggleAvailability(evt, slot, isAvailable) {
@@ -143,6 +199,10 @@ Handlebars.registerHelper("partial", function(template, options) {
       update[field] = name;
       TimeSlots.update(slot._id, { $set: update});
     }
+  }
+
+  function determineIncrement(slot1, slot2) {
+    return Math.abs(slot1.slotTimestamp - slot2.slotTimestamp);
   }
 
   Template.massageTable.events({
@@ -204,18 +264,50 @@ Handlebars.registerHelper("partial", function(template, options) {
       $target.closest("th").addClass("editing");
     },
     'click .save-masseuse-name' : function(evt) {
-      evt.preventDefault();
-      var $target = $(evt.target);
-      var $th = $target.closest("th");
-      var masseuse = $th.attr("data-masseuse");
-      var newName = $th.find("input.masseuse-name").val();
-      var dayId = Session.get("currentDayId")
-      var currentDay = Days.findOne(dayId);
-      var update = {};
+      if (isAdmin) {
+        evt.preventDefault();
+        var $target = $(evt.target);
+        var $th = $target.closest("th");
+        var masseuse = $th.attr("data-masseuse");
+        var newName = $th.find("input.masseuse-name").val();
+        var dayId = Session.get("currentDayId")
+        var currentDay = Days.findOne(dayId);
+        var update = {};
 
-      update["masseuse" + masseuse] = {name:newName};
-      Days.update(dayId,{$set : update});
-      $th.removeClass("editing")
+        update["masseuse" + masseuse] = {name:newName};
+        Days.update(dayId,{$set : update});
+        $th.removeClass("editing")
+      }
+    },
+    'click .add-timeslot' : function(evt) {
+      if (isAdmin) {
+        var dayId = Session.get("currentDayId");
+
+        var latestTimeSlots = TimeSlots.find({dayId:dayId}, {sort: {slotTimestamp:-1}, limit:2}).fetch();
+        if (latestTimeSlots.length > 0) {
+          var increment = latestTimeSlots.length <= 1 ? INCREMENT : determineIncrement(latestTimeSlots[0], latestTimeSlots[1]);
+          var newTimestamp = latestTimeSlots[0].slotTimestamp + increment;
+          var ordinal = latestTimeSlots[0].ordinal + 1;
+          createSlot(dayId, newTimestamp, ordinal);
+        } else {
+          console.log("Not doing anything because there are no timeslots");
+          //TODO: Create slot at default time (just don't pass a timestamp to createSlot?)
+        }
+      }
+    },
+    'change .increment-selector' : function(evt) {
+      var newIncrement = parseInt($(evt.target).val(), 10) * 60 * 1000;
+
+      var slots = getSlotsCursor().fetch();
+      var startingTimestamp = slots[0].slotTimestamp;
+      for(var i = 1; i < slots.length; i++) {
+        var newTimestamp = startingTimestamp + (i * newIncrement)
+        var update = {
+          slotTimestamp : newTimestamp,
+          displayTime : getFormattedTime(newTimestamp, TIMEZONE)
+        }
+        TimeSlots.update(slots[i]._id, { $set: update});
+      }
     },
     'keyup .time-slot-input' : function(evt) {
       if (!isAdmin) {
@@ -233,30 +325,37 @@ Handlebars.registerHelper("partial", function(template, options) {
 
   var INCREMENT = 20 * 60 * 1000
 
+  function getFormattedTime(timestamp, timezone) {
+    return moment(timestamp).tz(timezone).format("hh:mmA");
+  }
+
+  function createSlot(dayId, newTimestamp, ordinal) {
+    var time = getFormattedTime(newTimestamp, TIMEZONE);
+    var available = ordinal == 6 ? false : true;
+    var newSlot = {
+      "ordinal" : ordinal
+      ,"dayId" : dayId
+      ,"displayTime" : time
+      ,"slotTimestamp":newTimestamp
+      , "masseuse1" : {
+          "customerName" : ""
+          , available: available
+        }
+      , "masseuse2" : {
+          "customerName" : ""
+          , available: available
+        }
+    }
+
+    TimeSlots.insert(newSlot);
+  }
+
   function createSlots(dayId, timestamp) {
     var baseDate = moment(timestamp).tz(TIMEZONE);
     baseDate.hours("10");
     for (var i = 0; i < 14; i++) {
-      var newTimestamp = baseDate.valueOf() + i * INCREMENT
-      var slotMoment = moment(newTimestamp);
-      var time = slotMoment.tz(TIMEZONE).format("hh:mmA");
-      var available = i == 6 ? false : true;
-      var newSlot = {
-        "ordinal" : i
-        ,"dayId" : dayId
-        ,"displayTime" : time
-        ,"slotTimestamp":newTimestamp
-        , "masseuse1" : {
-            "customerName" : ""
-            , available: available
-          }
-        , "masseuse2" : {
-            "customerName" : ""
-            , available: available
-          }
-      }
-
-      TimeSlots.insert(newSlot);
+      var newTimestamp = baseDate.valueOf() + i * INCREMENT;
+      createSlot(dayId, newTimestamp, i);
     }
   }
 

@@ -118,13 +118,35 @@
   {{else}}
     <h3>Massages for {{date}}</h3>
     {{#if isAdmin}}
-      <div>
-        {{#if currentDayIsActive}}
-          This list is visible to the public.
-        {{else}}
-          This list is not visible to the public.
-          <button class="btn btn-primary toggle-active">Make this list visible</button>
-        {{/if}}
+      <div class="admin-container day-admin-container">
+        <h5>Admin Only</h5>
+        <p>
+          {{#unless currentDayIsActive}}
+          Massages start at
+          <select disabled readonly class="time-selector">
+            {{#each hours}}
+              <option value="{{value}}" {{hoursSelected}}>{{text}}</option>
+            {{/each}}
+          </select>&nbsp;:&nbsp;<select disabled readonly class="time-selector">
+            {{#each minutes}}
+              <option value="{{value}}" {{minutesSelected}}>{{text}}</option>
+            {{/each}}
+          </select>
+            &nbsp;and last&nbsp;<select class="time-selector increment-selector">
+            {{#each increments}}
+              <option value="{{value}}" {{incrementsSelected}}>{{text}}</option>
+            {{/each}}
+          </select>&nbsp;minutes
+          {{/unless}}
+        </p>
+        <p>
+          {{#if currentDayIsActive}}
+            This list is visible to the public.
+          {{else}}
+            This list is not visible to the public.
+            <button class="btn btn-primary toggle-active">Make this list visible</button>
+          {{/if}}
+        </p>
       </div>
     {{/if}}
     <table class="table table-striped table-bordered" id="massageTable">
@@ -141,5 +163,10 @@
         </tr>
       {{/each}}
     </table>
+    {{#if isAdmin}}
+    <div class="add-timeslot-container">
+      <button class="btn add-timeslot">Add new timeslot</button>
+    </div>
+    {{/if}}
   {{/unless}}
 </template>

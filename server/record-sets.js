@@ -1,14 +1,19 @@
 (function () {
-  var TimeSlots = new Meteor.Collection("timeSlots");
-  var Days = new Meteor.Collection("days")
-
   var adminOnly = function(userId) {
     return userId === "admin"
   }
 
   Days.allow({
     insert: adminOnly,
-    update: adminOnly,
+    update: function(userId, doc, fieldNames, modifier) {
+      var isEditingWaitlist = fieldNames.length === 1 && _.indexOf(fieldNames,"waitlist") === 0;
+      if (isEditingWaitlist) {
+        if (modifier["$addToSet"]) {
+          return true;
+        }
+      }
+      return adminOnly(userId);
+    },
     remove: function() {
       return false;
     }

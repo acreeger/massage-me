@@ -5,9 +5,6 @@
 if (Meteor.isClient) {
   var TIMEZONE = "America/Los_Angeles";
 
-  var TimeSlots = new Meteor.Collection("timeSlots");
-  var Days = new Meteor.Collection("days")
-
   var isAdmin = null;
   var adminDependency = new Deps.Dependency
 
@@ -170,13 +167,22 @@ if (Meteor.isClient) {
   Template.massageTable.incrementsSelected = function() {
     var slots = getSlotsCursor().fetch();
     var currentIncrement;
-    if (slots.length > 0) {
+    if (slots.length > 1) {
       currentIncrement = determineIncrement(slots[0],slots[1])
     } else {
       currentIncrement = INCREMENT;
     }
 
     return (currentIncrement / 60 / 1000) === this.value ? "selected" : "";
+  }
+
+  Template.massageTable.waitlist = function() {var dayId = Session.get("currentDayId");
+    var day, dayId = Session.get("currentDayId");
+    if (dayId) day = Days.findOne(dayId);
+
+    if (day) {
+      return  day.waitlist || [];
+    }
   }
 
   function toggleAvailability(evt, slot, isAvailable) {
@@ -319,6 +325,22 @@ if (Meteor.isClient) {
         } else {
           $termsContainer.slideDown();
         }
+      }
+    },
+    'click #add-waitlist-name' : function() {
+      var name = $("#waitlist-name").val().trim();
+      if (name !== "") {
+        var currentDay = Days.findOne(Session.get("currentDayId"));
+        Days.update(Session.get("currentDayId"), {$addToSet : {waitlist : name}});
+        $("#waitlist-name").val("");
+      }
+    },
+    'click .remove-waitlist-name' : function(evt) {
+      evt.preventDefault();
+      if (confirm("Are you sure you wish to remove this person from the waitlist?")) {
+        var $tgt = $(evt.target);
+        var name = this.toString();
+        Days.update({_id : Session.get("currentDayId")}, {$pull : {waitlist : name}});
       }
     }
   });

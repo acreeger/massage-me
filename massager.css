@@ -31,7 +31,7 @@
   margin-top: 0
 }
 
-.remove-booking {
+.remove-booking, .remove-waitlist-name {
   color: red;
 }
 
@@ -72,6 +72,10 @@ blockquote p {
   font-size: 14px;
   font-weight: normal;
   line-height: auto;
+}
+
+#add-waitlist-name {
+  margin-left: 10px;
 }
 
 /*.add-day, .book-time-slot {

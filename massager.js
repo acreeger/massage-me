@@ -211,6 +211,15 @@ if (Meteor.isClient) {
     return Math.abs(slot1.slotTimestamp - slot2.slotTimestamp);
   }
 
+  function addWaitlistName() {
+    var name = $("#waitlist-name").val().trim();
+    if (name !== "") {
+      var currentDay = Days.findOne(Session.get("currentDayId"));
+      Days.update(Session.get("currentDayId"), {$addToSet : {waitlist : name}});
+      $("#waitlist-name").val("");
+    }
+  }
+
   Template.massageTable.events({
     'click .book-time-slot' : function(evt) {
       var $cell = $(evt.target).closest("td");
@@ -328,12 +337,7 @@ if (Meteor.isClient) {
       }
     },
     'click #add-waitlist-name' : function() {
-      var name = $("#waitlist-name").val().trim();
-      if (name !== "") {
-        var currentDay = Days.findOne(Session.get("currentDayId"));
-        Days.update(Session.get("currentDayId"), {$addToSet : {waitlist : name}});
-        $("#waitlist-name").val("");
-      }
+      addWaitlistName();
     },
     'click .remove-waitlist-name' : function(evt) {
       evt.preventDefault();
@@ -341,6 +345,11 @@ if (Meteor.isClient) {
         var $tgt = $(evt.target);
         var name = this.toString();
         Days.update({_id : Session.get("currentDayId")}, {$pull : {waitlist : name}});
+      }
+    },
+    'keyup #waitlist-name' : function(evt) {
+      if (evt.keyCode === 13) {
+        addWaitlistName();
       }
     }
   });

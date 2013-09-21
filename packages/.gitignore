@@ -1,4 +1,3 @@
-moment-timezone
-moment-alternative
-bootstrap-datepicker
-bootstrap-datepicker2
+/moment-timezone
+/moment
+/bootstrap-datepicker2

@@ -1,5 +1,5 @@
 <head>
-  <title>AKQA's Massage Booking System</title>
+  <title>AKQA's Flu-shot Booking System</title>
   <!-- TODO: Style sheet for print to hide admin panel -->
 </head>
 
@@ -9,22 +9,6 @@
   {{/if}}
   <br>
   {{> massageTable}}
-  <div id="termsModal" class="modal hide fade">
-    <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-      <h3>Payroll Deduction Authorization</h3>
-    </div>
-    <div class="modal-body">
-      <p>By booking a massage using this system, you agree to the following:</p>
-      <blockquote>
-        <p>I hereby authorize AKQA to deduct $10.00 (after-tax) from the my next feasible paycheck as repayment for my share of the massage fees for a 20 minute chair massage rendered by Erika Sydow and Company.</p>
-        <p><strong>If for whatever reason I am unable to make my massage appointment, I understand and agree to pay a $10.00 non-refundable no show fee to AKQA,&nbsp;Inc. which will be automatically deducted from my next feasible paycheck.</strong></p>
-      </blockquote>
-    </div>
-    <div class="modal-footer">
-      <a href="#" class="btn" data-dismiss="modal">Close</a>
-    </div>
-  </div>
 </body>
 
 <template name="allSessions">
@@ -71,7 +55,7 @@
 </template>
 
 <template name="individualBooking">
-  <td class="masseuse-column" data-masseuse="{{masseuseNum}}">
+  <td class="{{availableClass masseuseNum}}" class="masseuse-column" data-masseuse="{{masseuseNum}}">
     {{#if masseuse.available}}
       <div>
         {{#if masseuse.customerName}}
@@ -112,18 +96,18 @@
 </template>
 
 <template name="massageTable">
-  <h1>Massage Booking System</h1>
+  <h1>Flu-shot Booking System</h1>
   {{#unless loaded}}
     Loading. Please wait...
   {{else}}
-    <h3>Massages for {{date}}</h3>
-    <h4>Enter your name in an available slot below, or add yourself to the <a href="#waitlist">waitlist</a>.</h4>
+    <h3>Flu-shots for {{date}}</h3>
+    <h4>Enter your name in an available slot below.</h4>
     {{#if isAdmin}}
       <div class="admin-container day-admin-container">
         <h5>Admin Only</h5>
         <p>
           {{#unless currentDayIsActive}}
-          Massages start at
+          Slots start at
           <select disabled readonly class="time-selector">
             {{#each hours}}
               <option value="{{value}}" {{hoursSelected}}>{{text}}</option>
@@ -151,14 +135,9 @@
       </div>
     {{/if}}
     <table class="table table-striped table-bordered" id="massageTable">
-      <thead>
-        <th class="left-column">Time Slot</th>
-        {{partial "masseuseHeader" masseuse="1"}}
-        {{partial "masseuseHeader" masseuse="2"}}
-      </thead>
       {{#each slots}}
-        <tr class="left-column" data-slot-id="{{_id}}" id="slot_row_{{_id}}">
-          <td>{{displayTime}}</td>
+        <tr data-slot-id="{{_id}}" id="slot_row_{{_id}}">
+          <td class="left-column">{{displayTime}}</td>
           {{partial "individualBooking" masseuseNum="1" masseuse=masseuse1}}
           {{partial "individualBooking" masseuseNum="2" masseuse=masseuse2}}
         </tr>
@@ -169,19 +148,5 @@
       <button class="btn add-timeslot">Add new timeslot</button>
     </div>
     {{/if}}
-    <div>
-      <h3 id="waitlist">Waitlist</h3>
-      <p>If you can't find a slot that works for you, add your name to the waitlist:</p>
-      <ol>
-      {{#each waitlist}}
-        <li>{{.}}
-          {{#if isAdmin}}
-            <a title="Remove this name from the waitlist" href="#" class="btn-link remove-waitlist-name">x</a>
-          {{/if}}
-        </li>
-      {{/each}}
-      <input type="text" id="waitlist-name" placeholder="Full name"><button id="add-waitlist-name" class="btn">Add</button>
-      </ol>
-    </div>
   {{/unless}}
 </template>

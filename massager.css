@@ -52,7 +52,11 @@
 }
 
 .left-column {
-  width: 82px;
+  width: 76px;
+}
+
+.open-slot {
+  background-color: #FFFEDE !important
 }
 
 .masseuse-column {

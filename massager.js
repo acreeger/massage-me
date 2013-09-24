@@ -92,6 +92,10 @@ if (Meteor.isClient) {
     return result;
   }
 
+  Template.individualBooking.availableClass = function(masseuseNumber) {
+    return this["masseuse" + masseuseNumber].customerName === "" ? "open-slot" : "booked-slot";
+  }
+
   Template.massageTable.date = function() {
     var day;
     var dayId = Session.get("currentDayId");
@@ -158,7 +162,7 @@ if (Meteor.isClient) {
 
   Template.massageTable.increments = function() {
     var result = [];
-    for (var i = 5; i < 60; i = i + 5) {
+    for (var i = 1; i < 6; i++) {
       result.push({value:i, text:i})
     }
     return result;
@@ -226,18 +230,10 @@ if (Meteor.isClient) {
       var masseuse = $cell.attr("data-masseuse");
       var $checkbox = $cell.find("input.terms-conditions-checkbox");
 
-      if (isAdmin || $checkbox.is(":checked")){
-        var name = $cell.find("input.time-slot-input").val();
+      var name = $cell.find("input.time-slot-input").val();
 
-        if (name !== "") {
-          updateCustomerName(this, masseuse, name);
-        }
-      } else {
-        var $summary = $cell.find(".terms-summary")
-        $summary.addClass("error");
-        Meteor.setTimeout(function() {
-          $summary.removeClass("error");
-        },7500)
+      if (name !== "") {
+        updateCustomerName(this, masseuse, name);
       }
     },
     'change .terms-conditions-checkbox' : function(evt) {
@@ -324,18 +320,6 @@ if (Meteor.isClient) {
         TimeSlots.update(slots[i]._id, { $set: update});
       }
     },
-    'keyup .time-slot-input' : function(evt) {
-      if (!isAdmin) {
-        var $input = $(evt.target);
-        var val = $input.val();
-        var $termsContainer = $input.closest("td").find(".terms-conditions");
-        if (val === "") {
-          $termsContainer.slideUp();
-        } else {
-          $termsContainer.slideDown();
-        }
-      }
-    },
     'click #add-waitlist-name' : function() {
       addWaitlistName();
     },
@@ -354,7 +338,7 @@ if (Meteor.isClient) {
     }
   });
 
-  var INCREMENT = 20 * 60 * 1000
+  var INCREMENT = 4 * 60 * 1000
 
   function getFormattedTime(timestamp, timezone) {
     return moment(timestamp).tz(timezone).format("hh:mmA");
@@ -362,7 +346,7 @@ if (Meteor.isClient) {
 
   function createSlot(dayId, newTimestamp, ordinal) {
     var time = getFormattedTime(newTimestamp, TIMEZONE);
-    var available = ordinal == 6 ? false : true;
+    var available = true;
     var newSlot = {
       "ordinal" : ordinal
       ,"dayId" : dayId
@@ -383,8 +367,8 @@ if (Meteor.isClient) {
 
   function createSlots(dayId, timestamp) {
     var baseDate = moment(timestamp).tz(TIMEZONE);
-    baseDate.hours("10");
-    for (var i = 0; i < 14; i++) {
+    baseDate.hours("11");
+    for (var i = 0; i < 60; i++) {
       var newTimestamp = baseDate.valueOf() + i * INCREMENT;
       createSlot(dayId, newTimestamp, i);
     }
@@ -446,7 +430,7 @@ if (Meteor.isClient) {
             archived:false,
             dayTimestamp:dayTimestamp,
             masseuse1 : {
-              name : "Erika"
+              name : ""
             },
             masseuse2 : {
               name : ""

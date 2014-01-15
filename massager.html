@@ -86,9 +86,9 @@
           </div>
           <div class="hide terms-conditions">
             {{#unless isAdmin}}
-              <input class="pull-left terms-conditions-checkbox" type="checkbox" value="agreed">
+              <input id="{{_id}}-{{masseuseNum}}" class="pull-left terms-conditions-checkbox" type="checkbox" value="agreed">
               <div class="terms-summary">
-                I authorize AKQA to deduct $10 from my next paycheck, even if I don't show. <a href="#termsModal" data-toggle="modal">See full terms.</a>
+                <label for="{{_id}}-{{masseuseNum}}">I authorize AKQA to deduct $10 from my next paycheck, even if I don't show.</label>&nbsp;<a href="#termsModal" data-toggle="modal">See full terms.</a>
               </div>
             {{/unless}}
           </div>

@@ -90,6 +90,11 @@ input[type="text"] {
   margin-bottom: 0;
 }
 
+
+.terms-conditions label {
+  display: inline;
+}
+
 body {
   margin-left: 10px;
 }

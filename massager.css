@@ -1,7 +1,7 @@
 /* CSS declarations go here */
 #massageTable {
   margin-top:10px;
-  width: 700px;
+  width: 850px;
 }
 
 .add-timeslot-container {
@@ -88,6 +88,10 @@ input[type="text"], input[type="password"], .ui-autocomplete-input, textarea, .u
 
 input[type="text"] {
   margin-bottom: 0;
+}
+
+.time-slot-input {
+  width: 165px;
 }
 
 body {

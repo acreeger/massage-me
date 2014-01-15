@@ -354,7 +354,7 @@ if (Meteor.isClient) {
     }
   });
 
-  var INCREMENT = 20 * 60 * 1000
+  var INCREMENT = 30 * 60 * 1000
 
   function getFormattedTime(timestamp, timezone) {
     return moment(timestamp).tz(timezone).format("hh:mmA");
@@ -373,6 +373,10 @@ if (Meteor.isClient) {
           , available: available
         }
       , "masseuse2" : {
+          "customerName" : ""
+          , available: available
+        }
+      , "masseuse3" : {
           "customerName" : ""
           , available: available
         }
@@ -446,9 +450,12 @@ if (Meteor.isClient) {
             archived:false,
             dayTimestamp:dayTimestamp,
             masseuse1 : {
-              name : "Erika"
+              name : ""
             },
             masseuse2 : {
+              name : ""
+            },
+            masseuse3 : {
               name : ""
             }
           }

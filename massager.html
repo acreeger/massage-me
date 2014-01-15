@@ -155,12 +155,14 @@
         <th class="left-column">Time Slot</th>
         {{partial "masseuseHeader" masseuse="1"}}
         {{partial "masseuseHeader" masseuse="2"}}
+        {{partial "masseuseHeader" masseuse="3"}}
       </thead>
       {{#each slots}}
         <tr class="left-column" data-slot-id="{{_id}}" id="slot_row_{{_id}}">
           <td>{{displayTime}}</td>
           {{partial "individualBooking" masseuseNum="1" masseuse=masseuse1}}
           {{partial "individualBooking" masseuseNum="2" masseuse=masseuse2}}
+          {{partial "individualBooking" masseuseNum="3" masseuse=masseuse3}}
         </tr>
       {{/each}}
     </table>

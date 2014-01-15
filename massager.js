@@ -325,7 +325,6 @@ if (Meteor.isClient) {
       }
     },
     'keyup .time-slot-input' : function(evt) {
-      return;
       if (!isAdmin) {
         var $input = $(evt.target);
         var val = $input.val();

@@ -94,6 +94,10 @@ input[type="text"] {
   width: 165px;
 }
 
+.terms-conditions label {
+  display: inline;
+}
+
 body {
   margin-left: 10px;
 }

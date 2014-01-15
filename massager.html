@@ -1,5 +1,5 @@
 <head>
-  <title>AKQA's Massage Booking System</title>
+  <title>AKQA's Acupuncture Booking System</title>
   <!-- TODO: Style sheet for print to hide admin panel -->
 </head>
 
@@ -112,18 +112,18 @@
 </template>
 
 <template name="massageTable">
-  <h1>Massage Booking System</h1>
+  <h1>Acupuncture Booking System</h1>
   {{#unless loaded}}
     Loading. Please wait...
   {{else}}
-    <h3>Massages for {{date}}</h3>
+    <h3>Acupuncture bookings for {{date}}</h3>
     <h4>Enter your name in an available slot below, or add yourself to the <a href="#waitlist">waitlist</a>.</h4>
     {{#if isAdmin}}
       <div class="admin-container day-admin-container">
         <h5>Admin Only</h5>
         <p>
           {{#unless currentDayIsActive}}
-          Massages start at
+          Appointments start at
           <select disabled readonly class="time-selector">
             {{#each hours}}
               <option value="{{value}}" {{hoursSelected}}>{{text}}</option>

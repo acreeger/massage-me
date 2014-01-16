@@ -384,7 +384,7 @@ if (Meteor.isClient) {
   function createSlots(dayId, timestamp) {
     var baseDate = moment(timestamp).tz(TIMEZONE);
     baseDate.hours("10");
-    for (var i = 0; i < 14; i++) {
+    for (var i = 0; i < 13; i++) {
       var newTimestamp = baseDate.valueOf() + i * INCREMENT;
       createSlot(dayId, newTimestamp, i);
     }

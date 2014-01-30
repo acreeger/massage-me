@@ -17,8 +17,8 @@
     <div class="modal-body">
       <p>By booking an acupuncture session using this system, you agree to the following:</p>
       <blockquote>
-        <p>I hereby authorize AKQA to deduct $10.00 (after-tax) from the my next feasible paycheck as repayment for my share of the acupuncture fees for a 30 minute session rendered by Jessica Davies and Company.</p>
-        <p><strong>If for whatever reason I am unable to make my acupuncture appointment, I understand and agree to pay a $10.00 non-refundable no show fee to AKQA,&nbsp;Inc. which will be automatically deducted from my next feasible paycheck.</strong></p>
+        <p>I hereby authorize AKQA to deduct $15.00 (after-tax) from the my next feasible paycheck as repayment for my share of the acupuncture fees for a 30 minute session rendered by Jessica Davies and Company.</p>
+        <p><strong>If for whatever reason I am unable to make my acupuncture appointment, I understand and agree to pay a $15.00 non-refundable no show fee to AKQA,&nbsp;Inc. which will be automatically deducted from my next feasible paycheck.</strong></p>
       </blockquote>
     </div>
     <div class="modal-footer">
@@ -54,9 +54,9 @@
     <div class="masseuse-name-readonly">
       <span id="masseuse{{masseuse}}-name">
       {{#if masseuseName masseuse}}
-        Therapist: {{masseuseName masseuse}}
+        Acupuncturist: {{masseuseName masseuse}}
       {{else}}
-        Therapist #{{masseuse}}
+        Acupuncturist #{{masseuse}}
       {{/if}}
       </span>
       {{#if isAdmin}}
@@ -88,7 +88,7 @@
             {{#unless isAdmin}}
               <input id="{{_id}}-{{masseuseNum}}" class="pull-left terms-conditions-checkbox" type="checkbox" value="agreed">
               <div class="terms-summary">
-                <label for="{{_id}}-{{masseuseNum}}">I authorize AKQA to deduct $10 from my next paycheck, even if I don't show.</label>&nbsp;<a href="#termsModal" data-toggle="modal">See full terms.</a>
+                <label for="{{_id}}-{{masseuseNum}}">I authorize AKQA to deduct $15 from my next paycheck, even if I don't show.</label>&nbsp;<a href="#termsModal" data-toggle="modal">See full terms.</a>
               </div>
             {{/unless}}
           </div>
@@ -154,15 +154,11 @@
       <thead>
         <th class="left-column">Time Slot</th>
         {{partial "masseuseHeader" masseuse="1"}}
-        {{partial "masseuseHeader" masseuse="2"}}
-        {{partial "masseuseHeader" masseuse="3"}}
       </thead>
       {{#each slots}}
         <tr class="left-column" data-slot-id="{{_id}}" id="slot_row_{{_id}}">
           <td>{{displayTime}}</td>
           {{partial "individualBooking" masseuseNum="1" masseuse=masseuse1}}
-          {{partial "individualBooking" masseuseNum="2" masseuse=masseuse2}}
-          {{partial "individualBooking" masseuseNum="3" masseuse=masseuse3}}
         </tr>
       {{/each}}
     </table>

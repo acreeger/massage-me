@@ -354,7 +354,7 @@ if (Meteor.isClient) {
     }
   });
 
-  var INCREMENT = 30 * 60 * 1000
+  var INCREMENT = 10 * 60 * 1000
 
   function getFormattedTime(timestamp, timezone) {
     return moment(timestamp).tz(timezone).format("hh:mmA");
@@ -362,7 +362,10 @@ if (Meteor.isClient) {
 
   function createSlot(dayId, newTimestamp, ordinal) {
     var time = getFormattedTime(newTimestamp, TIMEZONE);
-    var available = ordinal == 6 ? false : true;
+    //HACK: Had to be done fast, so here it is.
+    var isAfterLunch = ordinal >= 27
+    var available = (!isAfterLunch && ordinal % 6 != 5) || (isAfterLunch && ordinal % 6 != 2);
+    var create = ordinal >= 16 && ordinal < 27 ? false : true; //1240 -> 2:20 inclusive
     var newSlot = {
       "ordinal" : ordinal
       ,"dayId" : dayId
@@ -372,23 +375,18 @@ if (Meteor.isClient) {
           "customerName" : ""
           , available: available
         }
-      , "masseuse2" : {
-          "customerName" : ""
-          , available: available
-        }
-      , "masseuse3" : {
-          "customerName" : ""
-          , available: available
-        }
     }
 
-    TimeSlots.insert(newSlot);
+    if (create) {
+      TimeSlots.insert(newSlot);
+    }
+
   }
 
   function createSlots(dayId, timestamp) {
     var baseDate = moment(timestamp).tz(TIMEZONE);
     baseDate.hours("10");
-    for (var i = 0; i < 14; i++) {
+    for (var i = 0; i < 43; i++) {
       var newTimestamp = baseDate.valueOf() + i * INCREMENT;
       createSlot(dayId, newTimestamp, i);
     }
@@ -450,13 +448,7 @@ if (Meteor.isClient) {
             archived:false,
             dayTimestamp:dayTimestamp,
             masseuse1 : {
-              name : ""
-            },
-            masseuse2 : {
-              name : ""
-            },
-            masseuse3 : {
-              name : ""
+              name : "Jes"
             }
           }
           dayId = Days.insert(dayData);

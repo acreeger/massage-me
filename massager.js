@@ -48,29 +48,7 @@ if (Meteor.isClient) {
     });
   });
 
-  // Template.hello.events({
-  //   'click input' : function () {
-  //     // template data, if any, is available in 'this'
-  //     if (typeof console !== 'undefined')
-  //       console.log("You pressed the button");
-  //   }
-  // });
-
-  // # Partials with parameters!
-  // # Thanks to http://zachsnow.com/#!/blog/2012/handlebarsjs/
-  // from: https://gist.github.com/dmayo3/3475017
-
-  Handlebars.registerHelper("partial", function(template, options) {
-    // # Find the partial in question.
-    var partial = Template[template]
-
-    // # Extend the current context
-    var context = _.extend({}, this, options.hash);
-
-    // # Render, marked as safe so it isn't escaped.
-    return new Handlebars.SafeString(partial(context))
-  });
-
+//TODO: replace with UI.registerHelper
   Handlebars.registerHelper("loaded", function() {
     return Session.get("loaded");
   });
@@ -230,7 +208,7 @@ if (Meteor.isClient) {
         var name = $cell.find("input.time-slot-input").val();
 
         if (name !== "") {
-          updateCustomerName(this, masseuse, name);
+          updateCustomerName(this.slot, masseuse, name);
         }
       } else {
         var $summary = $cell.find(".terms-summary")
@@ -249,10 +227,10 @@ if (Meteor.isClient) {
       }
     },
     'click .make-unavailable' : function(evt) {
-      toggleAvailability(evt, this, false)
+      toggleAvailability(evt, this.slot, false)
     },
     'click .make-available' : function(evt) {
-      toggleAvailability(evt, this, true)
+      toggleAvailability(evt, this.slot, true)
     },
     'click .remove-booking' : function(evt) {      
       evt.preventDefault();
@@ -260,7 +238,7 @@ if (Meteor.isClient) {
         var $tgt = $(evt.target);
         var masseuse = $tgt.closest("td").attr("data-masseuse");
 
-        updateCustomerName(this, masseuse, "");
+        updateCustomerName(this.slot, masseuse, "");
       }
     },
     'click .toggle-active' : function(evt) {

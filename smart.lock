@@ -15,13 +15,13 @@
       },
       "bootstrap-datepicker2": {
         "git": "https://github.com/deepwell/meteor-bootstrap-datepicker.git",
-        "tag": "v1.1.3",
-        "commit": "4581eef4760ad2022d0143dcc8cc0a28afc2f7a2"
+        "tag": "v1.2.0",
+        "commit": "b7de18a7cc651ea665cda75048663f90d1a11d10"
       },
       "moment": {
         "git": "https://github.com/acreeger/meteor-moment.git",
-        "tag": "v2.2.1",
-        "commit": "9ee12e714afe56b189f53076447b7b54f3012065"
+        "tag": "v2.8.1",
+        "commit": "722ea63783d594341023836b7d418ab2567dab8c"
       }
     }
   }
